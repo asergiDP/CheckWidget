@@ -8,6 +8,16 @@ import time
 from WidgetChecker import Website
 
 
+def add_protocol(s:str)->str:
+    try:
+        if s.startswith("https://") == False and s.startswith("http://") == False:
+            return f"https://{s}"
+        else:
+            return s
+    except Exception as e:
+        print(e)
+        return s
+
 if __name__ == '__main__':
     while True:
         dir = input("Inserisci il percorso della cartella che contiene gli URL: ")
@@ -18,6 +28,7 @@ if __name__ == '__main__':
         urls = [i.strip() for i in urls if i != '']
         urls = [i.strip() for i in urls if i != None]
         urls = [i.strip() for i in urls if i != 'nan']
+        urls = [add_protocol(i) for i in urls]
 
         print(urls)
         df = pd.DataFrame()

@@ -17,6 +17,8 @@ if __name__ == '__main__':
         urls = [i.replace('\n','').strip() for i in open(f"{dir}/{input_file}", "r").readlines() if i != '']
         urls = [i.strip() for i in urls if i != '']
         urls = [i.strip() for i in urls if i != None]
+        urls = [i.strip() for i in urls if i != 'nan']
+
         print(urls)
         df = pd.DataFrame()
         for url in urls:

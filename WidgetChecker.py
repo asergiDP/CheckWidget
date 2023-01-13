@@ -106,6 +106,11 @@ class Website:
             self.logger.error("Exception occurred", exc_info=True)
             print(e)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except requests.exceptions.ContentDecodingError as e1:
+            self.logger.error("Exception occurred", exc_info = True)
+            print(e)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+
 
     def widget_position(self):
         position = []

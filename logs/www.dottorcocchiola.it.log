@@ -1,0 +1,14 @@
+13-01-2023 17:22:30 - www.dottorcocchiola.it - ERROR - check_MD - 154 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\WidgetChecker.py", line 143, in check_MD
+    self.outcome.allows_booking = MappingIndividual(url = self.md[0]['href']).mapping.value
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 53, in __init__
+    super().__init__(url, profile_type = ProfileType.INDIVIDUAL)
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 31, in __init__
+    self.md_id = self.get_id()
+                 ^^^^^^^^^^^^^
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 39, in get_id
+    return ''.join([i for i in str(self.r.content)[idx_start:idx_end].split(':')[1].strip() if i.isdigit()])
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range

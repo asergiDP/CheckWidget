@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, InvalidSelectorException
 import chromedriver_binary
 
 
@@ -71,7 +71,8 @@ def get_widget_size_and_loc(url, widget ):
         return d
     except StaleElementReferenceException:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
-
+    except InvalidSelectorException:
+        d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
 
         # print('Page failed to LOAD')
         # pass

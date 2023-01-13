@@ -1,0 +1,9 @@
+requests
+pandas
+bs4
+openpyxl
+chromedriver-binary
+selenium
+dataclasses
+lxml
+html5lib

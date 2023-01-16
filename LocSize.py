@@ -28,14 +28,14 @@ driver.minimize_window()
 wait = WebDriverWait(driver, 5)
 
 def get_widget_size_and_loc(url, widget ):
-    xp = f"//{widget[0][0].name}[contains(@href,'{widget[0][0]['href']}')]"
-    xp = f"//*[contains(@href,'{widget[0][0]['href']}')]"
-    xp_widget = "//*[contains(@src,'https://widgets.miodottore.it/')]"
-
-    print(f"text is : {widget[0][0].text}")
-
-    driver.get(url)
     try:
+        xp = f"//{widget[0][0].name}[contains(@href,'{widget[0][0]['href']}')]"
+        xp = f"//*[contains(@href,'{widget[0][0]['href']}')]"
+        xp_widget = "//*[contains(@src,'https://widgets.miodottore.it/')]"
+
+        print(f"text is : {widget[0][0].text}")
+
+        driver.get(url)
         widg = wait.until(EC.presence_of_element_located((By.XPATH, xp)))
 
         w, h= widg.size['width'], widg.size['height']

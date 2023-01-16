@@ -74,6 +74,9 @@ def get_widget_size_and_loc(url, widget ):
     except StaleElementReferenceException:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
         return d
+    except UnboundLocalError:
+        d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        return d
     except Exception as e:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
         return d 

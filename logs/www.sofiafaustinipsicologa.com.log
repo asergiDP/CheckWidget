@@ -1,0 +1,26 @@
+16-01-2023 13:35:57 - www.sofiafaustinipsicologa.com - ERROR - check_MD - 162 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\WidgetChecker.py", line 151, in check_MD
+    self.outcome.allows_booking = MappingIndividual(url = self.md[0]['href']).mapping.value
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 53, in __init__
+    super().__init__(url, profile_type = ProfileType.INDIVIDUAL)
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 29, in __init__
+    self.r = requests.get(url= self.url_md, headers=headers_md)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 573, in request
+    prep = self.prepare_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 484, in prepare_request
+    p.prepare(
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL '/_link/?link=http%3A%2F%2Fwww.miodottore.it%2Fsofia-faustini%2Fpsicologo-psicologo-clinico%2Fparma%3Futm_source%3Dwidget%26utm_medium%3Dlink%2520rel%3Dnofollow&target=Y9eou48EBg5YJMb5V9Dv%2FCTZdb1HjHQhGKHNvArdV%2BLCRYxc0gyW0swZlX2zErqBX%2B2HlDdMOV4lx1kzZrIMoXmlsXoRqd5UCHsjzLouifXJs9yHnBYKWfDVZr4S511kjsZR0MnZRJRm8frn92praoA0LHPkIFnJRDG9K%2Bq8vzmafZEokReSeaMPT2K2dKihAWa8hlOESx0lwpP17c6nqM3wpWVjDkodwqYOvRYTecpY3aAEIF0%3D&iv=N%2F7FBdJ8%2FxBmxSUX': No scheme supplied. Perhaps you meant https:///_link/?link=http%3A%2F%2Fwww.miodottore.it%2Fsofia-faustini%2Fpsicologo-psicologo-clinico%2Fparma%3Futm_source%3Dwidget%26utm_medium%3Dlink%2520rel%3Dnofollow&target=Y9eou48EBg5YJMb5V9Dv%2FCTZdb1HjHQhGKHNvArdV%2BLCRYxc0gyW0swZlX2zErqBX%2B2HlDdMOV4lx1kzZrIMoXmlsXoRqd5UCHsjzLouifXJs9yHnBYKWfDVZr4S511kjsZR0MnZRJRm8frn92praoA0LHPkIFnJRDG9K%2Bq8vzmafZEokReSeaMPT2K2dKihAWa8hlOESx0lwpP17c6nqM3wpWVjDkodwqYOvRYTecpY3aAEIF0%3D&iv=N%2F7FBdJ8%2FxBmxSUX?

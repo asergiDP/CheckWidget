@@ -1,0 +1,14 @@
+16-01-2023 13:44:30 - rmspolimedical.it - ERROR - check_MD - 162 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\WidgetChecker.py", line 147, in check_MD
+    self.outcome.allows_booking = MappingFacility(url = self.md[0]['href']).mapping.value
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 86, in __init__
+    super().__init__(url, profile_type = ProfileType.FACILITY)
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 31, in __init__
+    self.md_id = self.get_id()
+                 ^^^^^^^^^^^^^
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\MappingMD.py", line 43, in get_id
+    return ''.join([i for i in str(self.r.content)[idx_start:idx_end].split(':')[1].strip() if i.isdigit()])
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range

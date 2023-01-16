@@ -48,6 +48,8 @@ def get_widget_size_and_loc(url, widget ):
         print(d)
         return d
         # return (w,h), (x,y), widget[0][0].text
+
+
     except IndexError:
 
         widg = wait.until(EC.presence_of_element_located((By.XPATH, xp_widget)))
@@ -71,6 +73,10 @@ def get_widget_size_and_loc(url, widget ):
         return d
     except StaleElementReferenceException:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        return d
+    except Exception as e:
+        d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        return d 
 
 
         # print('Page failed to LOAD')

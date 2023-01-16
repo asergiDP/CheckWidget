@@ -84,6 +84,8 @@ class Website:
                 url_md = s[:s.find('&')]
                 print(f"URL MD: {url_md}")
                 self.check_MD(url_md)
+                self.location = get_widget_size_and_loc(self.url, self.widget)
+
 
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
                 print('Checking pages')
@@ -97,6 +99,7 @@ class Website:
                     self.outcome.outcome = page.outcome.outcome
                     self.outcome.allows_booking = page.outcome.allows_booking
                     self.outcome.position = page.outcome.position
+                    self.location = get_widget_size_and_loc(self.url, self.widget)
                 else:
                     self.outcome.url = self.url
                     self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value

@@ -52,12 +52,16 @@ def get_widget_size_and_loc(url, widget ):
 
     except IndexError:
 
-        widg = wait.until(EC.presence_of_element_located((By.XPATH, xp_widget)))
-        w, h= widg.size['width'], widg.size['height']
-        x, y= widg.location['x'], widg.location['y']
-        d = {'height': h, 'width': w, 'x': x, 'y': y}
-        print(d)
-        return d
+        try:
+            widg = wait.until(EC.presence_of_element_located((By.XPATH, xp_widget)))
+            w, h= widg.size['width'], widg.size['height']
+            x, y= widg.location['x'], widg.location['y']
+            d = {'height': h, 'width': w, 'x': x, 'y': y}
+            print(d)
+            return d
+        except UnboundLocalError:
+            d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+            return d
     except TimeoutException:
         # widg = wait.until(EC.presence_of_element_located((By.XPATH, xp_widget)))
         # # d = {'text':widget[0][0].text}

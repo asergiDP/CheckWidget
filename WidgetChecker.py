@@ -89,7 +89,7 @@ class Website:
 
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
                 print('Checking pages')
-                page = self.check_all_links(self.all_widget)
+                page = self.check_all_links(list(set(self.all_widget)))
 
                 if type(page) is Website:
                     print(f"MAIN {page.outcome}") 

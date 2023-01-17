@@ -18,6 +18,9 @@ def WidgetLogger(url) -> None:
     f_handler.setFormatter(f_format)
     logger.addHandler(c_handler)
     logger.addHandler(f_handler)
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+        handler.close()
     return logger 
 
 # WidgetLogger(url= url)

@@ -111,8 +111,13 @@ class Website:
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except requests.exceptions.ContentDecodingError as e1:
             self.logger.error("Exception occurred", exc_info = True)
-            print(e)
+            print(e1)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except requests.exceptions.InvalidSchema as e2:
+            self.logger.error("Exception occurred", exc_info = True)
+            print(e2)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+
 
 
     def widget_position(self):

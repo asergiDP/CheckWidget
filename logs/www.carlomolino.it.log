@@ -1,0 +1,51 @@
+16-01-2023 19:50:27 - www.carlomolino.it - ERROR - __init__ - 109 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 1042, in _validate_conn
+    conn.connect()
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connection.py", line 467, in connect
+    _match_hostname(cert, self.assert_hostname or server_hostname)
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connection.py", line 540, in _match_hostname
+    match_hostname(cert, asserted_hostname)
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\util\ssl_match_hostname.py", line 155, in match_hostname
+    raise CertificateError("hostname %r doesn't match %r" % (hostname, dnsnames[0]))
+urllib3.util.ssl_match_hostname.CertificateError: hostname 'www.carlomolino.it' doesn't match 'www.chemilabor.com'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 489, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\util\retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='www.carlomolino.it', port=443): Max retries exceeded with url: / (Caused by SSLError(CertificateError("hostname 'www.carlomolino.it' doesn't match 'www.chemilabor.com'")))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\WidgetChecker.py", line 58, in __init__
+    self.response = requests.get(self.url, headers=headers)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utente\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 563, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='www.carlomolino.it', port=443): Max retries exceeded with url: / (Caused by SSLError(CertificateError("hostname 'www.carlomolino.it' doesn't match 'www.chemilabor.com'")))

@@ -1,0 +1,6 @@
+16-01-2023 19:39:33 - www.antoniodematteis.com - ERROR - check_MD - 162 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\Utente\Desktop\Visibility\CheckWidget\WidgetChecker.py", line 151, in check_MD
+    self.outcome.allows_booking = MappingIndividual(url = self.md[0]['href']).mapping.value
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'value'

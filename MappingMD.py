@@ -75,6 +75,8 @@ class MappingIndividual(MappingMD):
                 print(c.json())
                 if c.status_code == 200 and len(c.json()) >0:
                     return AllowsBooking.OK
+                else:
+                    return AllowsBooking.MAPPING_REVIEW
         except Exception as e:
             print(e)
             return AllowsBooking.INVALID_URL

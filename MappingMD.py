@@ -77,9 +77,12 @@ class MappingIndividual(MappingMD):
                     return AllowsBooking.OK
                 else:
                     return AllowsBooking.MAPPING_REVIEW
-        except Exception as e:
+            
+        except requests.exceptions.ConnectionError as e:
             print(e)
             return AllowsBooking.INVALID_URL
+        except Exception as e:
+            return AllowsBooking.MAPPING_REVIEW
 
 
 class MappingFacility(MappingMD):

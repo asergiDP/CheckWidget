@@ -117,6 +117,10 @@ class Website:
             self.logger.error("Exception occurred", exc_info = True)
             print(e2)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except requests.exceptions.ChunkedEncodingError as e3:
+            self.logger.error("Exception occurred", exc_info = True)
+            print(e3)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
 
 
 

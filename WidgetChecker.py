@@ -89,6 +89,7 @@ class Website:
 
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
                 print('Checking pages')
+                # if original:
                 page = self.check_all_links(self.all_widget)
 
                 if type(page) is Website:
@@ -100,10 +101,11 @@ class Website:
                     self.outcome.allows_booking = page.outcome.allows_booking
                     self.outcome.position = page.outcome.position
                     self.location = get_widget_size_and_loc(self.url, self.widget)
+                    return 
                 else:
                     self.outcome.url = self.url
                     self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value
-
+                    return 
             
         except requests.exceptions.ConnectionError as e:
             self.logger.error("Exception occurred", exc_info=True)
@@ -143,8 +145,11 @@ class Website:
             l = link[0]['href']
             print(f"link: {l}")
             w = Website(l)
+            # print(w.outcome)
+            # print(w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value)
+            if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
 
-            if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value:
+                print('BREAKING')
                 print(f'OUTCOME: {w.outcome.outcome}')
                 print(f'URL: {w.outcome.url}')
                 return cls(url = w.outcome.url)

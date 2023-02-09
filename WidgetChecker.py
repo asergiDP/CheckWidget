@@ -20,7 +20,8 @@ headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 
 
 
-
+UNIQUE_LINKS = set()
+REMOVED_LINKS = set()
 
 # class AllowsBooking(Enum):
 #     OK = 'OK'
@@ -90,7 +91,17 @@ class Website:
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
                 print('Checking pages')
                 # if original:
-                page = self.check_all_links(self.all_widget)
+                page = None
+                for w in self.all_widget:
+                    if w[0]['href'] not in list(REMOVED_LINKS):
+                        page = self.check_one_link(w[0]['href'])
+                        REMOVED_LINKS.add(w[0]['href'])
+                        UNIQUE_LINKS.add(w[0]['href'])
+                    # print(UNIQUE_LINKS)
+
+                # page = self.check_all_links(list(UNIQUE_LINKS))
+
+                # page = self.check_all_links(self.all_widget)
 
                 if type(page) is Website:
                     print(f"MAIN {page.outcome}") 
@@ -139,12 +150,32 @@ class Website:
             pass
 
 
+    # @classmethod
+    # def check_all_links(cls, links):
+    #     for link in links:
+    #         l = link[0]['href']
+    #         print(f"link: {l}")
+    #         w = Website(l)
+    #         # print(w.outcome)
+    #         # print(w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value)
+    #         if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+
+    #             print('BREAKING')
+    #             print(f'OUTCOME: {w.outcome.outcome}')
+    #             print(f'URL: {w.outcome.url}')
+    #             return cls(url = w.outcome.url)
+
+
     @classmethod
     def check_all_links(cls, links):
         for link in links:
-            l = link[0]['href']
-            print(f"link: {l}")
-            w = Website(l)
+            # l = link[0]['href']
+            # UNIQUE_LINKS.add(l)
+            print(f"link: {link}")
+            REMOVED_LINKS.add(link)
+            w = Website(link)
+            UNIQUE_LINKS.remove(link)
+
             # print(w.outcome)
             # print(w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value)
             if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
@@ -153,6 +184,21 @@ class Website:
                 print(f'OUTCOME: {w.outcome.outcome}')
                 print(f'URL: {w.outcome.url}')
                 return cls(url = w.outcome.url)
+            # else:
+            #     print(f"Link removed: {link}")
+            #     UNIQUE_LINKS.remove(link)
+
+
+    @classmethod
+    def check_one_link(cls, link):
+        print(f"link: {link}")
+        w = Website(link)
+        if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+            print('BREAKING')
+            print(f'OUTCOME: {w.outcome.outcome}')
+            print(f'URL: {w.outcome.url}')
+            return cls(url = w.outcome.url)
+
 
     def check_MD(self, url_md = None):
         try:
@@ -175,4 +221,6 @@ class Website:
         except Exception as e:
                 self.logger.error("Exception occurred", exc_info=True)            
                 pass
+
+
 

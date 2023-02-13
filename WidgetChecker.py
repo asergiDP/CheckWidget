@@ -2,6 +2,7 @@
 
 import re
 import requests
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from dataclasses import dataclass, asdict
 from widget_logger import WidgetLogger
@@ -17,11 +18,12 @@ from MappingMD import MappingIndividual, MappingFacility, AllowsBooking, Profile
 
 headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'}
 
-
+checks = []
 
 
 UNIQUE_LINKS = set()
 REMOVED_LINKS = set()
+# REMOVED_LINKS = []
 
 # class AllowsBooking(Enum):
 #     OK = 'OK'
@@ -61,11 +63,12 @@ class Website:
             self.content = self.response.content
             self.soup = BeautifulSoup(self.content, 'html5lib')
             self.links = self.soup.find_all(href = True)
-            self.all_links = [i for i in self.links if self.url in i['href'] and i['href'] != self.url]
+            self.all_links = [i for i in self.links if urlparse(self.url).netloc in i['href'] and i['href'] != self.url]
             self.all_widget = [self.soup.find_all(tag.name, {'href': tag['href']}) for tag in self.all_links]
-            self.md = [i for i in self.links if 'www.miodottore.it' in i['href']]
+            self.md = [i for i in self.links if 'miodottore.it' in i['href']]
             self.widget = [self.soup.find_all(tag.name, {'href': tag['href']}) for tag in self.md]
             self.outcome = CheckWidget()
+            self.checks = []
             
             if len(self.md)>0 :
                 print(WidgetStatus.WIDGET_FOUND.value)
@@ -90,33 +93,61 @@ class Website:
 
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
                 print('Checking pages')
+                REMOVED_LINKS.add(self.url)
+
                 # if original:
-                page = None
-                for w in self.all_widget:
-                    if w[0]['href'] not in list(REMOVED_LINKS):
-                        page = self.check_one_link(w[0]['href'])
-                        REMOVED_LINKS.add(w[0]['href'])
-                        UNIQUE_LINKS.add(w[0]['href'])
+                # page = None
+                # REMOVED_LINKS = []
+                for ww in self.all_widget:
+                    print(ww[0]['href'])
+                    # print(w[0]['href'] not in list(REMOVED_LINKS))
+                    print(ww[0]['href'] not in REMOVED_LINKS)
+
+                    if ww[0]['href'] not in list(REMOVED_LINKS):
+                    # if w[0]['href'] not in REMOVED_LINKS:
+                        print(ww[0]['href'])
+                        # REMOVED_LINKS.append(w[0]['href'])
+                        # REMOVED_LINKS.add(w[0]['href'])
+                        print("removing links")
+                        print(REMOVED_LINKS)
+                        page = self.check_one_link(ww[0]['href'])
+                        print(type(page))
+                        print(type(page) is Website)
+
+
+                        # UNIQUE_LINKS.add(w[0]['href'])
                     # print(UNIQUE_LINKS)
 
                 # page = self.check_all_links(list(UNIQUE_LINKS))
 
                 # page = self.check_all_links(self.all_widget)
 
-                if type(page) is Website:
-                    print(f"MAIN {page.outcome}") 
-                    self.location = page.location 
-                    self.outcome.page_found = page.outcome.page_found
-                    self.outcome.url = url
-                    self.outcome.outcome = page.outcome.outcome
-                    self.outcome.allows_booking = page.outcome.allows_booking
-                    self.outcome.position = page.outcome.position
-                    self.location = get_widget_size_and_loc(self.url, self.widget)
-                    return 
-                else:
-                    self.outcome.url = self.url
-                    self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value
-                    return 
+                        if type(page) is Website and page.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or page.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or page.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+                            # REMOVED_LINKS.add(w[0]['href'])
+                            print('EXITING')
+                            # print(f"LINKS REMOVED: {REMOVED_LINKS}")
+                            [REMOVED_LINKS.add(i[0]['href']) for i in self.all_widget if i[0]['href'] != page.outcome.url]
+                            print(f"MAIN {page.outcome}") 
+                            # checks.append(page)
+                            # self.location = page.location 
+                            # self.outcome.page_found = page.outcome.url
+                            self.outcome.page_found = checks[0].url
+
+                            # self.outcome.page_found = w[0]['href']
+
+                            # self.outcome.url = url
+                            # self.outcome.outcome = page.outcome.outcome
+                            # self.outcome.allows_booking = page.outcome.allows_booking
+                            # self.outcome.position = page.outcome.position
+                            # self.location = get_widget_size_and_loc(self.url, self.widget)
+                            break
+                        # else:
+                        #     REMOVED_LINKS.add(w[0]['href'])
+                            # if w[0]['href'] in self.all_widget:
+                            #     self.all_widget.remove(w[0]['href'])
+                        #     self.outcome.url = self.url
+                        #     self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value
+                        #     return 
             
         except requests.exceptions.ConnectionError as e:
             self.logger.error("Exception occurred", exc_info=True)
@@ -166,7 +197,7 @@ class Website:
     #             return cls(url = w.outcome.url)
 
 
-    @classmethod
+    # @classmethod
     def check_all_links(cls, links):
         for link in links:
             # l = link[0]['href']
@@ -174,7 +205,7 @@ class Website:
             print(f"link: {link}")
             REMOVED_LINKS.add(link)
             w = Website(link)
-            UNIQUE_LINKS.remove(link)
+            # UNIQUE_LINKS.remove(link)
 
             # print(w.outcome)
             # print(w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value)
@@ -183,21 +214,44 @@ class Website:
                 print('BREAKING')
                 print(f'OUTCOME: {w.outcome.outcome}')
                 print(f'URL: {w.outcome.url}')
-                return cls(url = w.outcome.url)
+                w.outcome.page_found = link
+                REMOVED_LINKS.remove(link)
+                return w
+                # return cls(url = w.outcome.url)
             # else:
             #     print(f"Link removed: {link}")
             #     UNIQUE_LINKS.remove(link)
 
 
-    @classmethod
-    def check_one_link(cls, link):
+    # @classmethod
+    def check_one_link(self, link):
         print(f"link: {link}")
         w = Website(link)
         if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+            # REMOVED_LINKS.add(w.url)
+            page = w
+            [REMOVED_LINKS.add(i[0]['href']) for i in w.all_widget if i[0]['href'] != w.url]
             print('BREAKING')
             print(f'OUTCOME: {w.outcome.outcome}')
             print(f'URL: {w.outcome.url}')
-            return cls(url = w.outcome.url)
+            checks.append(w)
+            self.location = page.location 
+            self.outcome.page_found = page.outcome.page_found
+            self.outcome.url = page.url
+            self.outcome.outcome = page.outcome.outcome
+            self.outcome.allows_booking = page.outcome.allows_booking
+            self.outcome.position = page.outcome.position
+            self.location = get_widget_size_and_loc(self.url, self.widget)
+            w.outcome.page_found = link
+            print(w.outcome)
+            return w
+        else:
+            REMOVED_LINKS.add(w[0]['href'])
+            self.all_widget.remove(link)
+            w = None
+            return w
+
+            # return cls(url = w.outcome.url)
 
 
     def check_MD(self, url_md = None):
@@ -223,4 +277,32 @@ class Website:
                 pass
 
 
+w = Website("https://nuoviequilibri.com/")
+w.outcome
 
+
+# w.all_links = [i for i in w.links if w.url in i['href'] and i['href'] != w.url]
+
+# # w = Website("http://www.psicoterapeuta-pescara.it/")
+
+# [i for i in w.links if w.url in i['href']]
+# [i['href'] for i in w.links]
+
+# from urllib.parse import urlparse
+
+# o = urlparse("https://nuoviequilibri.com/")
+
+
+
+
+
+# 'https://www.nuoviequilibri.com/covid-19-oltre-il-virus-la-lontanza-da-casa/' in list(REMOVED_LINKS)  # when does it get removed
+# 'https://www.nuoviequilibri.com/feed/' in list(REMOVED_LINKS)
+
+
+
+
+# not_rem = [i[0]['href'] for i in w.all_widget if i[0]['href'] not in list(REMOVED_LINKS)]
+# len(not_rem)
+# REMOVED_LINKS
+# len(list(REMOVED_LINKS))

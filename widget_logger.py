@@ -6,6 +6,12 @@ from urllib.parse import urlparse
 def WidgetLogger(url) -> None:
     
     name = urlparse(url).netloc
+    name = name.replace('//','')
+    name = name.replace('\\','')
+    name = name.replace(':','')
+    name = name.replace('"','')
+
+
     logger = logging.getLogger(name)
 
     c_handler = logging.StreamHandler()

@@ -55,6 +55,9 @@ class Website:
 
     def __init__(self, url: str) -> None:
         self.url = url
+        if self.url.strip().startswith('http') == False:
+            self.url = f"http://{url}"
+            print(self.url)
         try:
             self.location = None
             self.logger = WidgetLogger(url=self.url)
@@ -122,7 +125,9 @@ class Website:
 
                 # page = self.check_all_links(self.all_widget)
 
-                        if type(page) is Website and page.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or page.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or page.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+                        if type(page) is Website:
+                        # if type(page) is Website and page.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or page.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or page.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
+                        
                             # REMOVED_LINKS.add(w[0]['href'])
                             print('EXITING')
                             # print(f"LINKS REMOVED: {REMOVED_LINKS}")
@@ -164,6 +169,10 @@ class Website:
         except requests.exceptions.ChunkedEncodingError as e3:
             self.logger.error("Exception occurred", exc_info = True)
             print(e3)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except requests.exceptions.InvalidURL as e4:
+            self.logger.error("Exception occurred", exc_info = True)
+            print(e4)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
 
 
@@ -247,9 +256,9 @@ class Website:
             return w
         else:
             REMOVED_LINKS.add(w[0]['href'])
-            self.all_widget.remove(link)
-            w = None
-            return w
+        #     # self.all_widget.remove(link)
+        #     w = None
+        #     return w
 
             # return cls(url = w.outcome.url)
 
@@ -277,8 +286,20 @@ class Website:
                 pass
 
 
-w = Website("https://nuoviequilibri.com/")
-w.outcome
+# w = Website("https://nuoviequilibri.com/")
+# w = Website("https://www.baldinottipsicologo.it")
+# w = Website("www.baldinottipsicologo.it")
+w = Website("www.spalla.it")
+
+
+
+# url = "https://www.baldinottipsicologo.it"
+# url = "www.baldinottipsicologo.it"
+
+# if url.strip().startswith('http') == False:
+#     url = f"https://{url}"
+
+# w.outcome
 
 
 # w.all_links = [i for i in w.links if w.url in i['href'] and i['href'] != w.url]

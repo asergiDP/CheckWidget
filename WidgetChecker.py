@@ -71,7 +71,11 @@ class Website:
             self.md = [i for i in self.links if 'miodottore.it' in i['href']]
             self.widget = [self.soup.find_all(tag.name, {'href': tag['href']}) for tag in self.md]
             self.outcome = CheckWidget()
-            self.checks = []
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].startswith('http')]
+            self.all_widget = [i for i in self.all_widget if urlparse(i[0]['href']).netloc == urlparse(self.url).netloc]
+
+            print(self.all_widget)
+
             
             if len(self.md)>0 :
                 print(WidgetStatus.WIDGET_FOUND.value)
@@ -98,13 +102,16 @@ class Website:
                 print('Checking pages')
                 REMOVED_LINKS.add(self.url)
 
+                if len(self.all_widget) == 0:
+                    return
+
                 # if original:
                 # page = None
                 # REMOVED_LINKS = []
                 for ww in self.all_widget:
                     print(ww[0]['href'])
-                    # print(w[0]['href'] not in list(REMOVED_LINKS))
-                    print(ww[0]['href'] not in REMOVED_LINKS)
+                    print(ww[0]['href'] not in list(REMOVED_LINKS))
+                    # print(ww[0]['href'] not in REMOVED_LINKS)
 
                     if ww[0]['href'] not in list(REMOVED_LINKS):
                     # if w[0]['href'] not in REMOVED_LINKS:
@@ -112,10 +119,12 @@ class Website:
                         # REMOVED_LINKS.append(w[0]['href'])
                         # REMOVED_LINKS.add(w[0]['href'])
                         print("removing links")
-                        print(REMOVED_LINKS)
+                        # print(REMOVED_LINKS)
                         page = self.check_one_link(ww[0]['href'])
                         print(type(page))
                         print(type(page) is Website)
+                        # self.all_widget.remove(w[0]['href'])
+
 
 
                         # UNIQUE_LINKS.add(w[0]['href'])
@@ -137,6 +146,8 @@ class Website:
                             # self.location = page.location 
                             # self.outcome.page_found = page.outcome.url
                             self.outcome.page_found = checks[0].url
+                            # self.all_widget.remove(w[0]['href'])
+
 
                             # self.outcome.page_found = w[0]['href']
 
@@ -146,10 +157,11 @@ class Website:
                             # self.outcome.position = page.outcome.position
                             # self.location = get_widget_size_and_loc(self.url, self.widget)
                             break
-                        # else:
-                        #     REMOVED_LINKS.add(w[0]['href'])
-                            # if w[0]['href'] in self.all_widget:
-                            #     self.all_widget.remove(w[0]['href'])
+                        else:
+                            # REMOVED_LINKS.add(w[0]['href'])
+                            # if ww in self.all_widget:
+                            self.all_widget.remove(ww)
+                            print(f"link to check:{len(self.all_widget)}")
                         #     self.outcome.url = self.url
                         #     self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value
                         #     return 
@@ -174,6 +186,11 @@ class Website:
             self.logger.error("Exception occurred", exc_info = True)
             print(e4)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except RecursionError as e5:
+            self.logger.error("Exception occurred", exc_info = True)
+            print(e5)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+
 
 
 
@@ -239,7 +256,7 @@ class Website:
         if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
             # REMOVED_LINKS.add(w.url)
             page = w
-            [REMOVED_LINKS.add(i[0]['href']) for i in w.all_widget if i[0]['href'] != w.url]
+            # [REMOVED_LINKS.add(i[0]['href']) for i in w.all_widget if i[0]['href'] != w.url]
             print('BREAKING')
             print(f'OUTCOME: {w.outcome.outcome}')
             print(f'URL: {w.outcome.url}')
@@ -255,7 +272,18 @@ class Website:
             print(w.outcome)
             return w
         else:
-            REMOVED_LINKS.add(w[0]['href'])
+            return None
+
+        # else:
+        #     # if link in self.all_widget:
+        #     self.all_widget.remove(link)
+        #     print(f"link to check:{len(self.all_widget)}")
+        # else:
+        #     # REMOVED_LINKS.add(w[0]['href'])
+        #     REMOVED_LINKS.add(link)
+        #     # self.all_widget.remove(w[0]['href'])
+
+
         #     # self.all_widget.remove(link)
         #     w = None
         #     return w
@@ -289,7 +317,9 @@ class Website:
 # w = Website("https://nuoviequilibri.com/")
 # w = Website("https://www.baldinottipsicologo.it")
 # w = Website("www.baldinottipsicologo.it")
-w = Website("www.spalla.it")
+# w = Website("https://www.spalla.it")
+# w = Website("https://www.federicobaranzini.it")
+w = Website("http://www.nutrirsi-irenegranucci.it/")
 
 
 

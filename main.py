@@ -6,6 +6,9 @@ import os
 import datetime as dt
 import time
 from WidgetChecker import Website
+import sys
+
+sys.setrecursionlimit(100_000)
 
 
 def add_protocol(s:str)->str:

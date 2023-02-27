@@ -345,9 +345,10 @@ class Website:
 # w = Website("https://www.an-fisio-osteo-spine.it/")
 
 # w = Website("https://www.cesareiacopino.it/")
-w = Website("https://www.nutrizionistavomero.com/", True)
+# w = Website("https://www.nutrizionistavomero.com/", True)
+# w = Website("https://www.cesareiacopino.it/contatti/", True)
 
-print(w.outcome)
+# print(w.outcome)
 
 
 

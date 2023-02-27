@@ -36,7 +36,7 @@ if __name__ == '__main__':
         print(urls)
         df = pd.DataFrame()
         for url in urls:
-            w = Website(url)
+            w = Website(url, True)
             print(w.outcome)
             if w.location is not None:
                 data = asdict(w.outcome) | w.location

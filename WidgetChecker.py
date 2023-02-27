@@ -7,7 +7,10 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass, asdict
 from widget_logger import WidgetLogger
 from LocSize import get_widget_size_and_loc
+from NetworkRequests import check_network_requests
+
 from enum import Enum
+
 
 from MappingMD import MappingIndividual, MappingFacility, AllowsBooking, ProfileType
 
@@ -53,7 +56,7 @@ class CheckWidget:
 
 class Website:
 
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, check_network:bool = False) -> None:
         self.url = url
         if self.url.strip().startswith('http') == False:
             self.url = f"http://{url}"
@@ -74,6 +77,11 @@ class Website:
             self.all_widget = [i for i in self.all_widget if i[0]['href'].startswith('http')]
             self.all_widget = [i for i in self.all_widget if urlparse(i[0]['href']).netloc.replace('www.','') == urlparse(self.url).netloc.replace('www.','')]
 
+            if check_network == True and len(self.md) <= 0 and 'platform.docplanner.com/js/widget.js' not in str(self.content):
+                if check_network_requests(self.url) == True:
+                    self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.WIDGET_INSTALLED.value, position=None, page_found= 'HOMEPAGE')
+
+
             # print(self.all_widget)
 
             
@@ -86,6 +94,7 @@ class Website:
                 self.location = get_widget_size_and_loc(self.url, self.widget)
 
             elif len(self.md)<=0 and 'platform.docplanner.com/js/widget.js' in str(self.content) and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
+
                 print('JAVASCRIPT')
                 self.outcome.url = self.url
                 self.outcome.outcome =  WidgetStatus.WIDGET_INSTALLED.value
@@ -98,7 +107,7 @@ class Website:
                 self.location = get_widget_size_and_loc(self.url, self.widget)
 
 
-            elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
+            elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value and self.outcome.outcome != WidgetStatus.WIDGET_INSTALLED.value:
                 print('Checking pages')
                 REMOVED_LINKS.add(self.url)
 
@@ -143,10 +152,15 @@ class Website:
                             # print(f"LINKS REMOVED: {REMOVED_LINKS}")
                             [REMOVED_LINKS.add(i[0]['href']) for i in self.all_widget if i[0]['href'] != page.outcome.url]
                             print(f"MAIN {page.outcome}") 
-                            # checks.append(page)
+                            checks.append(page)
                             # self.location = page.location 
+
+
+
                             # self.outcome.page_found = page.outcome.url
                             self.outcome.page_found = checks[0].url
+
+
                             # self.all_widget.remove(w[0]['href'])
 
 
@@ -166,6 +180,12 @@ class Website:
                         #     self.outcome.url = self.url
                         #     self.outcome.outcome = WidgetStatus.WIDGET_NOT_FOUND.value
                         #     return 
+
+            # elif all(i==None for i in asdict(CheckWidget).values()):
+            #     if check_network_requests == True:
+            #         self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.WIDGET_INSTALLED.value, position=None, page_found= 'HOMEPAGE')
+            #     else:
+            #         pass
             
         except requests.exceptions.ConnectionError as e:
             self.logger.error("Exception occurred", exc_info=True)
@@ -323,7 +343,11 @@ class Website:
 # w = Website("https://www.federicobaranzini.it")
 # w = Website("http://www.nutrirsi-irenegranucci.it/")
 # w = Website("https://www.an-fisio-osteo-spine.it/")
-# print(w.outcome)
+
+# w = Website("https://www.cesareiacopino.it/")
+w = Website("https://www.nutrizionistavomero.com/", True)
+
+print(w.outcome)
 
 
 

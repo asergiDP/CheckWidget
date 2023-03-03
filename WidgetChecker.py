@@ -3,13 +3,15 @@
 import re
 import requests
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, builder, MarkupResemblesLocatorWarning
 from dataclasses import dataclass, asdict
 from widget_logger import WidgetLogger
 from LocSize import get_widget_size_and_loc
 from NetworkRequests import check_network_requests
 
 from enum import Enum
+import warnings
+# warnings.filterwarnings("error")
 
 
 from MappingMD import MappingIndividual, MappingFacility, AllowsBooking, ProfileType
@@ -57,30 +59,70 @@ class CheckWidget:
 class Website:
 
     def __init__(self, url: str, check_network:bool = False) -> None:
+        warnings.filterwarnings("error")
+        global checks
+        checks = []
+        self.checks = []
+
         self.url = url
         if self.url.strip().startswith('http') == False:
             self.url = f"http://{url}"
             print(self.url)
         try:
             self.location = None
-            self.logger = WidgetLogger(url=self.url)
+            # self.logger = WidgetLogger(url=self.url)
             self.response = requests.get(self.url, headers=headers)
             print(self.response)
             self.content = self.response.content
             self.soup = BeautifulSoup(self.content, 'html5lib')
             self.links = self.soup.find_all(href = True)
+
+            # self.all_links = [i for i in self.links if urlparse(self.url).netloc.replace('www.','') in i['href'] and i['href'] != self.url]
+            self.all_links = [self.clean_links(i) for i in self.links]
             self.all_links = [i for i in self.links if urlparse(self.url).netloc.replace('www.','') in i['href'] and i['href'] != self.url]
+
+
             self.all_widget = [self.soup.find_all(tag.name, {'href': tag['href']}) for tag in self.all_links]
             self.md = [i for i in self.links if 'miodottore.it' in i['href']]
+            self.md = [*self.md, *[i for i in self.links if 'docplanner.it' in i['href']]]
             self.widget = [self.soup.find_all(tag.name, {'href': tag['href']}) for tag in self.md]
-            self.outcome = CheckWidget()
+            self.outcome = CheckWidget(url = self.url, outcome= WidgetStatus.WIDGET_NOT_FOUND.value)
             self.all_widget = [i for i in self.all_widget if i[0]['href'].startswith('http')]
             self.all_widget = [i for i in self.all_widget if urlparse(i[0]['href']).netloc.replace('www.','') == urlparse(self.url).netloc.replace('www.','')]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.php') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.xml') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.jpeg') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.jpg') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.png') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.pdf') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.ttf') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.woff') == False]
+            self.all_widget = [i for i in self.all_widget if i[0]['href'].endswith('.gif') == False]
 
-            if check_network == True and len(self.md) <= 0 and 'platform.docplanner.com/js/widget.js' not in str(self.content):
+
+
+            self.all_widget = [i for i in self.all_widget if '.css' not in i[0]['href']]
+            self.all_widget = [i for i in self.all_widget if 'wp-json' not in i[0]['href']]
+            self.all_widget = [i for i in self.all_widget if 'wp-content' not in i[0]['href']]
+            self.all_widget = [i for i in self.all_widget if '?share=' not in i[0]['href']]
+            self.all_widget = [i for i in self.all_widget if '.ttf' not in i[0]['href']]
+
+
+
+
+
+            # warnings.filterwarnings("error")
+
+
+
+
+
+            if check_network == True and len(self.md) <= 0 and 'platform.docplanner.com/js/widget.js' not in str(self.content) and 'docplanner-platform.com/js/widget.js' not in str(self.content):
+                # warnings.resetwarnings()
                 if check_network_requests(self.url) == True:
-                    self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.WIDGET_INSTALLED.value, position=None, page_found= 'HOMEPAGE')
-
+                    protocol = self.url.split('://')[0]
+                    self.outcome = CheckWidget(url = f"{protocol}://{urlparse(self.url).netloc}", outcome = WidgetStatus.WIDGET_INSTALLED.value, position=None, page_found= 'HOMEPAGE')
+                    checks = []
 
             # print(self.all_widget)
 
@@ -92,8 +134,9 @@ class Website:
                 self.check_MD()
                 print(f"OUTCOME is: {self.outcome}")
                 self.location = get_widget_size_and_loc(self.url, self.widget)
+                checks = []
 
-            elif len(self.md)<=0 and 'platform.docplanner.com/js/widget.js' in str(self.content) and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
+            elif len(self.md)<=0 and ('platform.docplanner.com/js/widget.js' in str(self.content) or 'docplanner-platform.com/js/widget.js'in str(self.content)) and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value:
 
                 print('JAVASCRIPT')
                 self.outcome.url = self.url
@@ -102,18 +145,25 @@ class Website:
                 self.outcome.position = str(self.content).find('platform.docplanner.com/js/widget.js')/len(str(self.content))
                 s = str(self.content)[str(self.content).find('https://www.miodottore.it/'):]
                 url_md = s[:s.find('&')]
+                # if url_md == '':
+                #     s = str(self.content)[str(self.content).find('https://www.docplanner.it/'):]
                 print(f"URL MD: {url_md}")
                 self.check_MD(url_md)
                 self.location = get_widget_size_and_loc(self.url, self.widget)
+                checks = []
 
 
             elif len(self.md)<=0 and self.outcome.outcome != WidgetStatus.WIDGET_FOUND.value and self.outcome.outcome != WidgetStatus.WIDGET_INSTALLED.value:
                 print('Checking pages')
                 REMOVED_LINKS.add(self.url)
 
+                # if len(checks)>0:
+                # self.outcome.page_found = checks[0].url
+
+
                 if len(self.all_widget) == 0:
                     return
-
+                
                 # if original:
                 # page = None
                 # REMOVED_LINKS = []
@@ -152,13 +202,21 @@ class Website:
                             # print(f"LINKS REMOVED: {REMOVED_LINKS}")
                             [REMOVED_LINKS.add(i[0]['href']) for i in self.all_widget if i[0]['href'] != page.outcome.url]
                             print(f"MAIN {page.outcome}") 
-                            checks.append(page)
+                            # checks = [page]
+                            # checks.append(page)
+                            # print([i.url for i in checks])
                             # self.location = page.location 
+                            self.outcome.page_found = checks[0].url
+
 
 
 
                             # self.outcome.page_found = page.outcome.url
-                            self.outcome.page_found = checks[0].url
+                            try:
+                                self.outcome.page_found = checks[0].url
+                            except:
+                                pass
+                            # check[0]
 
 
                             # self.all_widget.remove(w[0]['href'])
@@ -188,28 +246,36 @@ class Website:
             #         pass
             
         except requests.exceptions.ConnectionError as e:
-            self.logger.error("Exception occurred", exc_info=True)
+            # self.logger.error("Exception occurred", exc_info=True)
             print(e)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except requests.exceptions.ContentDecodingError as e1:
-            self.logger.error("Exception occurred", exc_info = True)
+            # self.logger.error("Exception occurred", exc_info = True)
             print(e1)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except requests.exceptions.InvalidSchema as e2:
-            self.logger.error("Exception occurred", exc_info = True)
+            # self.logger.error("Exception occurred", exc_info = True)
             print(e2)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except requests.exceptions.ChunkedEncodingError as e3:
-            self.logger.error("Exception occurred", exc_info = True)
+            # self.logger.error("Exception occurred", exc_info = True)
             print(e3)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except requests.exceptions.InvalidURL as e4:
-            self.logger.error("Exception occurred", exc_info = True)
+            # self.logger.error("Exception occurred", exc_info = True)
             print(e4)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
         except RecursionError as e5:
-            self.logger.error("Exception occurred", exc_info = True)
+            # self.logger.error("Exception occurred", exc_info = True)
             print(e5)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except builder.XMLParsedAsHTMLWarning as e6:
+            # self.logger.error("XML file", exc_info = True)
+            print(e6)
+            self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
+        except MarkupResemblesLocatorWarning as e7:
+            # self.logger.error("CSS file", exc_info = True)
+            print(e7)
             self.outcome = CheckWidget(url = self.url,outcome = WidgetStatus.CONNECTION_ERROR.value)
 
 
@@ -223,7 +289,7 @@ class Website:
                 self.outcome.position = min(position)/ len(str(self.soup.prettify()))
             return min(position)/ len(str(self.soup.prettify()))
         except Exception as e:
-            self.logger.error("Exception occurred", exc_info=True)
+            # self.logger.error("Exception occurred", exc_info=True)
             print(e)
             pass
 
@@ -273,18 +339,26 @@ class Website:
     # @classmethod
     def check_one_link(self, link):
         print(f"link: {link}")
-        w = Website(link)
+        w = Website(link, True)
         if w.outcome.outcome == WidgetStatus.WIDGET_FOUND.value or w.outcome.outcome == WidgetStatus.INDIVIDUAL_PROFILE.value or w.outcome.outcome == WidgetStatus.WIDGET_INSTALLED.value:
             # REMOVED_LINKS.add(w.url)
             page = w
+            # checks = []
             # [REMOVED_LINKS.add(i[0]['href']) for i in w.all_widget if i[0]['href'] != w.url]
             print('BREAKING')
             print(f'OUTCOME: {w.outcome.outcome}')
             print(f'URL: {w.outcome.url}')
+            self.checks.append(w)
             checks.append(w)
             self.location = page.location 
-            self.outcome.page_found = page.outcome.page_found
-            self.outcome.url = page.url
+            # self.outcome.page_found = page.outcome.url
+            # checks = []
+            # self.outcome.page_found = self.checks[0].url
+            # checks = []
+
+            # self.outcome.url = page.url
+            protocol = page.url.split('://')[0]
+            self.outcome.url = f"{protocol}://{urlparse(page.url).netloc}"
             self.outcome.outcome = page.outcome.outcome
             self.outcome.allows_booking = page.outcome.allows_booking
             self.outcome.position = page.outcome.position
@@ -332,8 +406,17 @@ class Website:
                 self.outcome.allows_booking = MappingIndividual(url = url_md).mapping.value
 
         except Exception as e:
-                self.logger.error("Exception occurred", exc_info=True)            
+                # self.logger.error("Exception occurred", exc_info=True)            
                 pass
+        
+
+    def clean_links(self,link)->str:
+        if urlparse(link['href']).netloc.replace('www.','') != '':
+            return link
+        else: 
+            l = f"{urlparse(self.url).netloc.replace('www.','')}/{link['href']}".replace('///','/').replace('//','/')
+            link['href'] = f"http://{l}"
+            return link
 
 
 # w = Website("https://nuoviequilibri.com/")
@@ -346,10 +429,26 @@ class Website:
 
 # w = Website("https://www.cesareiacopino.it/")
 # w = Website("https://www.nutrizionistavomero.com/", True)
+
 # w = Website("https://www.cesareiacopino.it/contatti/", True)
+# w = Website("https://www.cesareiacopino.it/", True)
+
+# w = Website("https://www.psicoterapeutagiareimonica.it/",True)
+# w = Website("https://www.dottlucabello.com/", True)
+# w = Website("https://www.nutrizionistavomero.com/", True)
+# w = Website("https://gennaroiapicca.it", True)
+
+# w = Website(url = "https://psicoterapeuta-antinori.it", check_network= True)
+
+# w = Website(url = "https://www.valerioavinoosteopata.it/", check_network= True)
+
+# w = Website(url= "https://www.baldinottipsicologo.it", check_network= True)
+# w = Website(url= "http://www.psicologasilviabaresi.it/", check_network= True)
+# w = Website(url = "https://www.igoroculista.com/site", check_network= True)
+# w = Website(url = "http://www.fernandomaxia.it/", check_network= True)
 
 # print(w.outcome)
-
+# urlparse(w.outcome.url).netloc
 
 
 # url = "https://www.baldinottipsicologo.it"
@@ -386,3 +485,5 @@ class Website:
 # len(not_rem)
 # REMOVED_LINKS
 # len(list(REMOVED_LINKS))
+
+# [i.url for i in checks]

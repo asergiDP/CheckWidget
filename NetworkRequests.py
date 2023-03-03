@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 import chromedriver_binary
 
+import warnings
 
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
@@ -18,22 +19,30 @@ options.add_argument('headless')
 options.add_argument("--start-maximized")
 
 
+
+
 def check_network_requests(url: str) -> bool:
+    warnings.resetwarnings()
+    driver = webdriver.Chrome(chrome_options = options)
     try:
         print("Checking all network requests")
-        driver = webdriver.Chrome(chrome_options=options)
+        # driver = webdriver.Chrome(chrome_options=options)
         driver.get(url)
         print("Loading page")
-        time.sleep(5)
+        time.sleep(3)
         urls = []
         for request in driver.requests:  
             if request.response: 
                 urls.append(request.url)
         if len([i for i in urls if 'docplanner' in i]) > 0:
+            # print([i for i in urls if 'docplanner' in i])
+            driver.quit()
             return True
         else:
+            driver.quit()
             return False
     except Exception as e:
+        driver.quit()
         print(e)   
 
 

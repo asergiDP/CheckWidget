@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 import chromedriver_binary
 
+import warnings
 
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
@@ -22,13 +23,21 @@ options.add_argument(f'user-agent={user_agent}')
 # options.add_argument('headless')
 options.add_argument("--start-maximized")
 
-driver = webdriver.Chrome(chrome_options=options)
-driver.minimize_window()
+# driver = webdriver.Chrome(chrome_options=options)
+# driver.minimize_window()
 
-wait = WebDriverWait(driver, 5)
+# wait = WebDriverWait(driver, 5)
 
 def get_widget_size_and_loc(url, widget ):
+    warnings.resetwarnings()
+    driver = webdriver.Chrome(chrome_options = options)
+    driver.minimize_window()
+    wait = WebDriverWait(driver, 5)
     try:
+        # driver = webdriver.Chrome(chrome_options=options)
+        # driver.minimize_window()
+        # wait = WebDriverWait(driver, 5)
+
         xp = f"//{widget[0][0].name}[contains(@href,'{widget[0][0]['href']}')]"
         xp = f"//*[contains(@href,'{widget[0][0]['href']}')]"
         xp_widget = "//*[contains(@src,'https://widgets.miodottore.it/')]"
@@ -46,6 +55,7 @@ def get_widget_size_and_loc(url, widget ):
         # widg.rect['text'] = widget[0][0].text
         # print(widg.rect)
         print(d)
+        driver.quit()
         return d
         # return (w,h), (x,y), widget[0][0].text
 
@@ -58,9 +68,11 @@ def get_widget_size_and_loc(url, widget ):
             x, y= widg.location['x'], widg.location['y']
             d = {'height': h, 'width': w, 'x': x, 'y': y}
             print(d)
+            driver.quit()
             return d
         except UnboundLocalError:
             d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+            driver.quit()
             return d
     except TimeoutException:
         # widg = wait.until(EC.presence_of_element_located((By.XPATH, xp_widget)))
@@ -73,16 +85,23 @@ def get_widget_size_and_loc(url, widget ):
         # widg.rect['text'] = widget[0][0].text
         # print(widg.rect)
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        driver.quit()
 
         return d
     except StaleElementReferenceException:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        driver.quit()
+
         return d
     except UnboundLocalError:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        driver.quit()
+
         return d
     except Exception as e:
         d = {'height': None, 'width': None, 'x': None, 'y': None, 'text':None}
+        driver.quit()
+
         return d 
 
 

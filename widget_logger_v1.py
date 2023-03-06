@@ -6,10 +6,12 @@ from urllib.parse import urlparse
 def WidgetLogger(url) -> None:
     
     name = urlparse(url).netloc
-    name = name.replace('//','')
-    name = name.replace('\\','')
-    name = name.replace(':','')
-    name = name.replace('"','')
+    banned_cahr = ['//','\\',':','"']
+    name = [name.replace(char, '') for char in banned_cahr][0]
+    # name = name.replace('//','')
+    # name = name.replace('\\','')
+    # name = name.replace(':','')
+    # name = name.replace('"','')
 
 
     logger = logging.getLogger(name)
@@ -17,8 +19,8 @@ def WidgetLogger(url) -> None:
 
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(f"logs/{name}.log")
-    # c_handler.setLevel(logging.INFO)
-    # f_handler.setLevel(logging.INFO)
+    # c_handler.setLevel(logging.DEBUG)
+    # f_handler.setLevel(logging.DEBUG)
     c_format = logging.Formatter('%(name)s - %(levelname)s - %(funcName)s - %(lineno)s - %(message)s', datefmt= '%d-%m-%Y %H:%M:%S')
     f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(lineno)s - %(message)s',datefmt= '%d-%m-%Y %H:%M:%S')
     c_handler.setFormatter(c_format)
@@ -30,7 +32,12 @@ def WidgetLogger(url) -> None:
     #     handler.close()
     return logger 
 
-# WidgetLogger(url= url)
+logger = WidgetLogger(url= 'https://google.com')
+logger.debug("cazzo")
+logger.error("cazzo")
+logger.info("info")
+logger.error("info")
+
 
 # logger = logging.getLogger(__name__)
 
